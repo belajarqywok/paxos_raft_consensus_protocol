@@ -1,0 +1,16 @@
+[Unit]
+Description=Library App Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/paxos_raft_consensus_protocol
+ExecStart=/usr/bin/node dist/main.js
+Environment=APP_MODE=lib
+Environment=PORT=5000
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

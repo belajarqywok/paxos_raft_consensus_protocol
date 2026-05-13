@@ -1,0 +1,51 @@
+# Enable or disable specific apps
+raft:
+  enabled: true
+  nodes:
+    - name: raft-1
+      port: 3001
+      peers: "http://raft-2:3002,http://raft-3:3003"
+    - name: raft-2
+      port: 3002
+      peers: "http://raft-1:3001,http://raft-3:3003"
+    - name: raft-3
+      port: 3003
+      peers: "http://raft-1:3001,http://raft-2:3002"
+
+paxos:
+  enabled: true
+  nodes:
+    - name: paxos-1
+      port: 4001
+      peers: "http://paxos-2:4002,http://paxos-3:4003"
+    - name: paxos-2
+      port: 4002
+      peers: "http://paxos-1:4001,http://paxos-3:4003"
+    - name: paxos-3
+      port: 4003
+      peers: "http://paxos-1:4001,http://paxos-2:4002"
+
+lib:
+  enabled: true
+  nodes:
+    - name: lib-app
+      port: 5000
+
+image:
+  repository: paxos-raft-node
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 60

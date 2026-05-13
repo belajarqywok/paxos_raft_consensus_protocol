@@ -1,0 +1,129 @@
+# deploy/k8s/raft.yaml
+---
+# ==========================================
+# RAFT NODE 1
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: raft-1
+spec:
+  ports:
+    - port: 3001
+      targetPort: 3001
+  selector:
+    app: raft-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raft-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: raft-1
+  template:
+    metadata:
+      labels:
+        app: raft-1
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "raft"
+            - name: PORT
+              value: "3001"
+            - name: PEERS
+              value: "http://raft-2:3002,http://raft-3:3003"
+          ports:
+            - containerPort: 3001
+
+---
+# ==========================================
+# RAFT NODE 2
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: raft-2
+spec:
+  ports:
+    - port: 3002
+      targetPort: 3002
+  selector:
+    app: raft-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raft-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: raft-2
+  template:
+    metadata:
+      labels:
+        app: raft-2
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "raft"
+            - name: PORT
+              value: "3002"
+            - name: PEERS
+              value: "http://raft-1:3001,http://raft-3:3003"
+          ports:
+            - containerPort: 3002
+
+---
+# ==========================================
+# RAFT NODE 3
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: raft-3
+spec:
+  ports:
+    - port: 3003
+      targetPort: 3003
+  selector:
+    app: raft-3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: raft-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: raft-3
+  template:
+    metadata:
+      labels:
+        app: raft-3
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "raft"
+            - name: PORT
+              value: "3003"
+            - name: PEERS
+              value: "http://raft-1:3001,http://raft-2:3002"
+          ports:
+            - containerPort: 3003

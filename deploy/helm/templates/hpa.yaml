@@ -1,0 +1,49 @@
+{{- $root := . -}}
+
+{{- define "app.hpa" -}}
+{{- $node := index . 0 -}}
+{{- $root := index . 1 -}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $node.name }}-hpa
+  labels:
+    app: {{ $node.name }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $node.name }}
+  minReplicas: {{ $root.Values.autoscaling.minReplicas }}
+  maxReplicas: {{ $root.Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $root.Values.autoscaling.targetCPUUtilizationPercentage }}
+{{- end -}}
+
+{{- if .Values.autoscaling.enabled }}
+
+{{- if .Values.raft.enabled }}
+{{- range .Values.raft.nodes }}
+{{- include "app.hpa" (list . $root) }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.paxos.enabled }}
+{{- range .Values.paxos.nodes }}
+{{- include "app.hpa" (list . $root) }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.lib.enabled }}
+{{- range .Values.lib.nodes }}
+{{- include "app.hpa" (list . $root) }}
+{{- end }}
+{{- end }}
+
+{{- end }}

@@ -1,0 +1,36 @@
+{{- $root := . -}}
+
+{{- define "app.service" -}}
+{{- $node := . -}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $node.name }}
+  labels:
+    app: {{ $node.name }}
+spec:
+  ports:
+    - port: {{ $node.port }}
+      targetPort: {{ $node.port }}
+  selector:
+    app: {{ $node.name }}
+{{- end -}}
+
+{{- if .Values.raft.enabled }}
+{{- range .Values.raft.nodes }}
+{{- include "app.service" . }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.paxos.enabled }}
+{{- range .Values.paxos.nodes }}
+{{- include "app.service" . }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.lib.enabled }}
+{{- range .Values.lib.nodes }}
+{{- include "app.service" . }}
+{{- end }}
+{{- end }}

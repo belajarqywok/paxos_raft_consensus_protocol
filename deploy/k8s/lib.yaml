@@ -1,0 +1,41 @@
+# deploy/k8s/lib.yaml
+---
+# ==========================================
+# LIBRARY APP
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: lib-app
+spec:
+  ports:
+    - port: 5000
+      targetPort: 5000
+  selector:
+    app: lib-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lib-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lib-app
+  template:
+    metadata:
+      labels:
+        app: lib-app
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "lib"
+            - name: PORT
+              value: "5000"
+          ports:
+            - containerPort: 5000

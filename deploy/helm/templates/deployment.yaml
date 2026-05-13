@@ -1,0 +1,60 @@
+{{- $root := . -}}
+
+{{- /* Helper template to generate deployments */ -}}
+{{- define "app.deployment" -}}
+{{- $mode := index . 0 -}}
+{{- $node := index . 1 -}}
+{{- $root := index . 2 -}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $node.name }}
+  labels:
+    app: {{ $node.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $node.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $node.name }}
+    spec:
+      containers:
+        - name: node
+          image: "{{ $root.Values.image.repository }}:{{ $root.Values.image.tag }}"
+          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          env:
+            - name: APP_MODE
+              value: "{{ $mode }}"
+            - name: PORT
+              value: "{{ $node.port }}"
+            {{- if $node.peers }}
+            - name: PEERS
+              value: "{{ $node.peers }}"
+            {{- end }}
+          ports:
+            - containerPort: {{ $node.port }}
+          resources:
+            {{- toYaml $root.Values.resources | nindent 12 }}
+{{- end -}}
+
+{{- if .Values.raft.enabled }}
+{{- range .Values.raft.nodes }}
+{{- include "app.deployment" (list "raft" . $root) }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.paxos.enabled }}
+{{- range .Values.paxos.nodes }}
+{{- include "app.deployment" (list "paxos" . $root) }}
+{{- end }}
+{{- end }}
+
+{{- if .Values.lib.enabled }}
+{{- range .Values.lib.nodes }}
+{{- include "app.deployment" (list "lib" . $root) }}
+{{- end }}
+{{- end }}

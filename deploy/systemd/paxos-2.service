@@ -1,0 +1,17 @@
+[Unit]
+Description=Paxos Node 2 Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/paxos_raft_consensus_protocol
+ExecStart=/usr/bin/node dist/main.js
+Environment=APP_MODE=paxos
+Environment=PORT=4002
+Environment=PEERS=http://127.0.0.1:4001,http://127.0.0.1:4003
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

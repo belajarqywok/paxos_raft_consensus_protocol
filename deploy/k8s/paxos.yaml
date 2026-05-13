@@ -1,0 +1,129 @@
+# deploy/k8s/paxos.yaml
+---
+# ==========================================
+# PAXOS NODE 1
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: paxos-1
+spec:
+  ports:
+    - port: 4001
+      targetPort: 4001
+  selector:
+    app: paxos-1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paxos-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paxos-1
+  template:
+    metadata:
+      labels:
+        app: paxos-1
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "paxos"
+            - name: PORT
+              value: "4001"
+            - name: PEERS
+              value: "http://paxos-2:4002,http://paxos-3:4003"
+          ports:
+            - containerPort: 4001
+
+---
+# ==========================================
+# PAXOS NODE 2
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: paxos-2
+spec:
+  ports:
+    - port: 4002
+      targetPort: 4002
+  selector:
+    app: paxos-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paxos-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paxos-2
+  template:
+    metadata:
+      labels:
+        app: paxos-2
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "paxos"
+            - name: PORT
+              value: "4002"
+            - name: PEERS
+              value: "http://paxos-1:4001,http://paxos-3:4003"
+          ports:
+            - containerPort: 4002
+
+---
+# ==========================================
+# PAXOS NODE 3
+# ==========================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: paxos-3
+spec:
+  ports:
+    - port: 4003
+      targetPort: 4003
+  selector:
+    app: paxos-3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paxos-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paxos-3
+  template:
+    metadata:
+      labels:
+        app: paxos-3
+    spec:
+      containers:
+        - name: node
+          image: paxos-raft-node:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: APP_MODE
+              value: "paxos"
+            - name: PORT
+              value: "4003"
+            - name: PEERS
+              value: "http://paxos-1:4001,http://paxos-2:4002"
+          ports:
+            - containerPort: 4003

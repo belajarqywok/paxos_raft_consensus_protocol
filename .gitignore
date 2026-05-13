@@ -1,0 +1,6 @@
+node_modules
+dist
+
+# File .env berisi secret — jangan di-commit!
+# Gunakan .env.example sebagai template yang aman.
+.env
