@@ -95,7 +95,11 @@ pm2-start-paxos:
 pm2-start-lib:
 	npx pm2 start ecosystem.config.js --only "lib-app"
 
-# Menjalankan semua 3 mode sekaligus
+# Menjalankan Cluster Dashboard (1 node, port 3004)
+pm2-start-dash:
+	npx pm2 start ecosystem.config.js --only "cluster-dash"
+
+# Menjalankan semua modul sekaligus
 pm2-start-all:
 	npx pm2 start ecosystem.config.js
 

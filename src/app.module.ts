@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { RbacModule } from './rbac/rbac.module';
 import { LibraryModule } from './library/library.module';
+import { ClusterModule } from './cluster/cluster.module';
 
 /**
  * AppModule dengan mode dinamis.
@@ -51,6 +52,11 @@ export class AppModule {
         RbacModule,
         LibraryModule,
       );
+    }
+
+    if (mode === 'dash' || mode === 'all') {
+      // Cluster Dashboard & Proxy (Port 3004)
+      imports.push(ClusterModule);
     }
 
     // AppController & AppService hanya diperlukan saat mode 'all'
